@@ -31,7 +31,7 @@ func main() {
 		G.WithValue(vecT),
 	)
 
-	z, err := G.Mul(mat, vec)
+	z, err := G.Mul(mat, vec) //z=W*x
 
 	// create a VM to run the program on
 	machine := G.NewTapeMachine(g)

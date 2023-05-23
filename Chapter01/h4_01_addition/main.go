@@ -7,13 +7,14 @@ import (
 	. "gorgonia.org/gorgonia"
 )
 
+//标量运算
 func main() {
 	g := NewGraph()
 
 	var x, y, z *Node
 	var err error
 
-	// define the expression
+	// define the expression 全是Node
 	x = NewScalar(g, Float64, WithName("x"))
 	y = NewScalar(g, Float64, WithName("y"))
 	z, err = Add(x, y)
