@@ -127,6 +127,7 @@ func NewMaze(h, w int) *Maze {
 		r: r} // ,
 }
 
+//CanMoveTo check whether a move is valid
 func (m *Maze) CanMoveTo(player Point, direction Vector) bool {
 	dir := Point(direction)
 	newX, newY := player.X+dir.X, player.Y+dir.Y
@@ -140,6 +141,7 @@ func (m *Maze) CanMoveTo(player Point, direction Vector) bool {
 	return m.iter[newY][newX] != wall
 }
 
+//Move move our player to a co-ordinate(坐标) in the maze
 func (m *Maze) Move(direction Vector) {
 	m.iter[m.player.Y][m.player.X] = empty
 
@@ -149,6 +151,7 @@ func (m *Maze) Move(direction Vector) {
 	m.iter[m.player.Y][m.player.X] = player
 }
 
+//Value return the reward(奖励) for a given action
 func (m *Maze) Value(action Vector) (float32, bool) {
 	pos := Point{m.player.X + action.X, m.player.Y + action.Y}
 	if pos.X < 0 || pos.X > len(m.values[0]) {

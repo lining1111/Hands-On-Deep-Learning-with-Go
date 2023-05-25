@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"math"
 	"math/rand"
 
 	. "gorgonia.org/gorgonia"
@@ -21,6 +22,7 @@ type nn struct {
 
 func newNN(g *ExprGraph) *nn {
 	// Create node for w/weight
+	//wB :=[]float64{-0.168,0.441,-1}
 	wB := tensor.Random(tensor.Float64, 3)
 	wT := tensor.New(tensor.WithBacking(wB), tensor.WithShape(3, 1))
 	w0 := NewMatrix(g,
@@ -39,6 +41,7 @@ func (m *nn) learnables() Nodes {
 	return Nodes{m.w0}
 }
 
+//隐藏层操作
 func (m *nn) fwd(x *Node) (err error) {
 	var l0, l1 *Node
 
@@ -55,6 +58,11 @@ func (m *nn) fwd(x *Node) (err error) {
 	Read(m.pred, &m.predVal)
 	return nil
 
+}
+
+//表征化上面的Sigmoid函数
+func sigmoid(x float64) float64 {
+	return 1 / (1 + math.Exp(x))
 }
 
 func main() {
@@ -92,6 +100,13 @@ func main() {
 
 	// Calculate Cost w/MSE
 	losses := Must(Sub(y, m.pred))
+
+	//cost1:=Must(Mean(losses))
+	//var costVal Value
+	//Read(cost1,&costVal)
+	//
+	//ioutil.WriteFile("pregrad.dot",[]byte(g.ToDot()),0644)
+
 	square := Must(Square(losses))
 	cost := Must(Mean(square))
 
@@ -102,15 +117,18 @@ func main() {
 
 	// Instantiate VM and Solver
 	vm := NewTapeMachine(g, BindDualValues(m.learnables()...))
-	solver := NewVanillaSolver(WithLearnRate(1.0))
-
+	solver := NewVanillaSolver(WithLearnRate(0.1), WithClip(5)) //W_New=W_old -eta*derivative(导数)
+	//solver1 :=NewMomentum()
 	for i := 0; i < 10000; i++ {
 		vm.Reset()
 		if err = vm.RunAll(); err != nil {
 			log.Fatalf("Failed at inter  %d: %v", i, err)
 		}
 		solver.Step(NodesToValueGrads(m.learnables()))
-		vm.Reset()
+		fmt.Println("\nState at iter ", i)
+		fmt.Println("Cost: \n", cost.Value())
+		fmt.Println("Weights: \n", m.w0.Value())
+		//vm.Reset()
 	}
 	fmt.Println("\n\nOutput after Training: \n", m.predVal)
 }

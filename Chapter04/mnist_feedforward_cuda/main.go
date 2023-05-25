@@ -32,7 +32,7 @@ var (
 	cpuprofile = flag.String("cpuprofile", "", "CPU profiling")
 )
 
-const loc = "./mnist/"
+const loc = "../../dataset/mnist/"
 
 var dt tensor.Dtype
 
@@ -144,6 +144,9 @@ func visualizeRow(x []float64) *image.Gray {
 	return img
 }
 
+/**
+本章的操作和第3章的都一样，只是在构建的时候，加上 -tags=cuda 参数，将底层的操作转到cuda操作，但是实验环境是虚拟机，所以使用不了N卡。不做实验
+*/
 func main() {
 	flag.Parse()
 	parseDtype()

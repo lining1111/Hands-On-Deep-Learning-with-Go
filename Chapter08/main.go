@@ -31,7 +31,7 @@ var (
 	cpuprofile = flag.String("cpuprofile", "", "CPU profiling")
 )
 
-const loc = "./mnist/"
+const loc = "../dataset/mnist/"
 
 var dt tensor.Dtype
 
@@ -431,7 +431,7 @@ func main() {
 
 			img := visualizeRow(row)
 
-			f, _ := os.OpenFile(fmt.Sprintf("images/%d - %d output.jpg", b, j), os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
+			f, _ := os.OpenFile(fmt.Sprintf("images/%d-%d output.jpg", b, j), os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
 			jpeg.Encode(f, img, &jpeg.Options{jpeg.DefaultQuality})
 			f.Close()
 		}

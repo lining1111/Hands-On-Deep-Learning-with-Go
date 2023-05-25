@@ -13,8 +13,8 @@ import (
 
 type seq2seq struct {
 	in        LSTM
-	dummyPrev *Node // (???) vector
-	dummyCell *Node // (??? ) vector
+	dummyPrev *Node // vector
+	dummyCell *Node // vector
 	embedding *Node // NxM matrix, where M is the number of dimensions of the embedding
 
 	decoder *Node

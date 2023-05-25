@@ -21,7 +21,7 @@ import (
 	"time"
 
 	// "cifar_cnn/cifar"
-	"./cifar"
+	"Hands-On-Deep-Learning-with-Go/Chapter09/pachyderm_cifar_cnn/cifar"
 
 	"gopkg.in/cheggaaa/pb.v1"
 )

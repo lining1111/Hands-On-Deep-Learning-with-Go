@@ -5,18 +5,19 @@ import (
 )
 
 type LSTM struct {
+	//input
 	wix    *Node
 	wih    *Node
 	bias_i *Node
-
+	//forget gate weights
 	wfx    *Node
 	wfh    *Node
 	bias_f *Node
-
+	//output gate weights
 	wox    *Node
 	woh    *Node
 	bias_o *Node
-
+	//cell write
 	wcx    *Node
 	wch    *Node
 	bias_c *Node
@@ -58,6 +59,7 @@ func (l *LSTM) learnables() Nodes {
 	}
 }
 
+//Activate is used to define the operations our units perform when processing input data
 func (l *LSTM) Activate(inputVector *Node, prev lstmout) (out lstmout, err error) {
 	// log.Printf("prev %v", prev.hidden.Shape())
 	prevHidden := prev.hidden

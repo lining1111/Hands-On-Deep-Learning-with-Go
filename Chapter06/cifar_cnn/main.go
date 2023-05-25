@@ -20,7 +20,7 @@ import (
 	"time"
 
 	// "cifar_cnn/cifar"
-	"./cifar"
+	"Hands-On-Deep-Learning-with-Go/Chapter06/cifar_cnn/cifar"
 
 	"gopkg.in/cheggaaa/pb.v1"
 )
@@ -33,7 +33,7 @@ var (
 	cpuprofile = flag.String("cpuprofile", "", "CPU profiling")
 )
 
-const loc = "./cifar-10/"
+const loc = "../cifar-10/"
 
 var dt tensor.Dtype
 

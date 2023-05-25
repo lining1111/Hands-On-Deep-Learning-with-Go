@@ -32,7 +32,7 @@ var (
 	cpuprofile = flag.String("cpuprofile", "", "CPU profiling")
 )
 
-const loc = "./mnist/"
+const loc = "../../dataset/mnist/"
 
 var dt tensor.Dtype
 
@@ -347,16 +347,19 @@ func main() {
 					predRowHigh = predRow[k]
 				}
 			}
-
-			f, _ := os.OpenFile(fmt.Sprintf("images/%d - %d - %d - %d.jpg", b, j, rowLabel, rowGuess), os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
+			//b 批次号码 j条目号码 rowLabel MNIST提供的label rowGuess 模型的预测
+			f, _ := os.OpenFile(fmt.Sprintf("images/%d-%d-%d-%d.jpg", b, j, rowLabel, rowGuess), os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
 			jpeg.Encode(f, img, &jpeg.Options{jpeg.DefaultQuality})
-			f.Close()
+			err = f.Close()
+			if err != nil {
+				log.Println(err)
+			}
 		}
 
 		arrayOutput = m.predVal.Data().([]float64)
 		yOutput = tensor.New(tensor.WithShape(bs, 10), tensor.WithBacking(arrayOutput))
 
-		file, err := os.OpenFile(fmt.Sprintf("%d.csv", b), os.O_CREATE|os.O_WRONLY, 0777)
+		file, err := os.OpenFile(fmt.Sprintf("csv/%d.csv", b), os.O_CREATE|os.O_WRONLY, 0777)
 		if err = xVal.(*tensor.Dense).Reshape(bs, 784); err != nil {
 			log.Fatal("Unable to create csv", err)
 		}
