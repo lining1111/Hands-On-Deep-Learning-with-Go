@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"gopkg.in/cheggaaa/pb.v1"
 	"image"
 	"image/jpeg"
 	"io/ioutil"
@@ -13,14 +14,12 @@ import (
 
 	_ "net/http/pprof"
 
+	"github.com/m8u/gorgonia/examples/mnist"
 	"github.com/pkg/errors"
 	"gorgonia.org/gorgonia"
-	"gorgonia.org/gorgonia/examples/mnist"
 	"gorgonia.org/tensor"
 
 	"time"
-
-	"gopkg.in/cheggaaa/pb.v1"
 )
 
 var (
