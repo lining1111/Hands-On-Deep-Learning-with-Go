@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 
 	. "gorgonia.org/gorgonia"
@@ -34,4 +35,6 @@ func main() {
 
 	fmt.Printf("%v", z.Value())
 	// Output: 4.5
+	//让我们通过图来看看g是什么样子 .dot 文件通过 dot -T pdf addition.dot -o addition.pdf 命令转换
+	ioutil.WriteFile("addition.dot", []byte(g.ToDot()), 0644)
 }

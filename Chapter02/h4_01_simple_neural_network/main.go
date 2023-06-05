@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 	"math"
 	"math/rand"
@@ -65,6 +66,15 @@ func sigmoid(x float64) float64 {
 	return 1 / (1 + math.Exp(x))
 }
 
+//本例中输入是4*3 输出 4*1 ，神经元内有两层 第一层是3*1,第二层是一个激活函数，其实输出的元素值是0和1,像一个分类器
+//输入	0 0 1
+//		0 1 1
+//		1 0 1
+//		1 1 1
+//输出	0
+//		0
+//		1
+//		1
 func main() {
 
 	rand.Seed(31337)
@@ -93,32 +103,33 @@ func main() {
 		WithValue(yT),
 	)
 
-	// Run forward pass
+	// Run forward pass 计算出原始数据通过神经元后的输出、用于和实际的输出做对比
 	if err := m.fwd(x); err != nil {
 		log.Fatalf("%+v", err)
 	}
 
 	// Calculate Cost w/MSE
-	losses := Must(Sub(y, m.pred))
+	losses := Must(Sub(y, m.pred)) //差距
 
-	//cost1:=Must(Mean(losses))
-	//var costVal Value
-	//Read(cost1,&costVal)
-	//
-	//ioutil.WriteFile("pregrad.dot",[]byte(g.ToDot()),0644)
+	cost1 := Must(Mean(losses))
+	var costVal Value
+	Read(cost1, &costVal)
+
+	ioutil.WriteFile("pregrad.dot", []byte(g.ToDot()), 0644)
 
 	square := Must(Square(losses))
-	cost := Must(Mean(square))
+	cost := Must(Mean(square)) //差距的方差
 
-	// Do Gradient updates
+	// Do Gradient updates计算梯度
 	if _, err = Grad(cost, m.learnables()...); err != nil {
 		log.Fatal(err)
 	}
 
-	// Instantiate VM and Solver
+	// Instantiate VM and Solver朴素随机梯度下降
 	vm := NewTapeMachine(g, BindDualValues(m.learnables()...))
+	//学习率：太小导致训练的周期长、太大则结果很快就越过去了
 	solver := NewVanillaSolver(WithLearnRate(0.1), WithClip(5)) //W_New=W_old -eta*derivative(导数)
-	//solver1 :=NewMomentum()
+	//solver1 := NewMomentum()
 	for i := 0; i < 10000; i++ {
 		vm.Reset()
 		if err = vm.RunAll(); err != nil {

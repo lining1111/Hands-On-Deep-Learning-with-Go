@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 
 	G "gorgonia.org/gorgonia"
@@ -44,4 +45,6 @@ func main() {
 
 	fmt.Println(z.Value().Data())
 	// Output: [9.4 3.4]
+	//让我们通过图来看看g是什么样子 .dot 文件通过 dot -T pdf multiplication.dot -o multiplication.pdf 命令转换
+	ioutil.WriteFile("multiplication.dot", []byte(g.ToDot()), 0644)
 }
