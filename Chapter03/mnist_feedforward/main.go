@@ -143,6 +143,9 @@ func visualizeRow(x []float64) *image.Gray {
 	return img
 }
 
+//输入量为28*28矩阵，或者784(784=28*28)的向量,即图片的像素值
+//输出为10*1的向量。每个输入对应的输出向量上只有一个为1,来对应数字的0～9
+//定义神经网络有两个隐藏层，一个有300个单元，一个有100个单元。
 func main() {
 	flag.Parse()
 	parseDtype()
@@ -172,10 +175,12 @@ func main() {
 	// 	log.Fatal(err)
 	// }
 
+	//以Graph为整体，通过NewXX加入Node来描述节点的特性
 	// we should now also proceed to put in our desired variables
 	// x is where our input should go, while y is the desired output
 	g := gorgonia.NewGraph()
 	// x := gorgonia.NewTensor(g, dt, 4, gorgonia.WithShape(bs, 1, 28, 28), gorgonia.WithName("x"))
+	//这里通过bs 将输入x 和输出y都做了扩容，但是属于行上的扩充，为了加快速度，每行的输入，对应每行的输出。
 	x := gorgonia.NewMatrix(g, dt, gorgonia.WithShape(bs, 784), gorgonia.WithName("x"))
 	y := gorgonia.NewMatrix(g, dt, gorgonia.WithShape(bs, 10), gorgonia.WithName("y"))
 
@@ -187,7 +192,8 @@ func main() {
 	}
 
 	// ioutil.WriteFile("simple_graph_2.dot", []byte(g.ToDot()), 0644)
-
+	//loss = -1*mean(actual_y*predicted_y)
+	//对应位置相乘 哈达玛积。
 	losses, err := gorgonia.HadamardProd(m.out, y)
 	if err != nil {
 		log.Fatal(err)
@@ -208,6 +214,7 @@ func main() {
 
 	batches := numExamples / bs
 	log.Printf("Batches %d", batches)
+	//前台打印的状态
 	bar := pb.New(batches)
 	bar.SetRefreshRate(time.Second / 20)
 	bar.SetMaxWidth(80)
@@ -332,11 +339,11 @@ func main() {
 
 			// get prediction
 			predRowT, _ := yOutput.Slice(sli{j, j + 1})
-			predRow := predRowT.Data().([]float64)
+			predRow := predRowT.Data().([]float64) //模型预测的结果1*10的向量
 			var rowGuess int
 			var predRowHigh float64
 
-			// guess result
+			// guess result 遍历当前的结果向量，得到得分值最大的那个
 			for k := 0; k < 10; k++ {
 				if k == 0 {
 					rowGuess = 0
@@ -366,7 +373,7 @@ func main() {
 		var matrixToWrite [][]string
 
 		for j := 0; j < yOutput.Shape()[0]; j++ {
-			rowT, _ := yOutput.Slice(sli{j, j + 1})
+			rowT, _ := yOutput.Slice(sli{j, j + 1}) //yOutput存的是预测输出后的1*10的向量结果
 			row := rowT.Data().([]float64)
 			var rowToWrite []string
 

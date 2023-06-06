@@ -30,13 +30,12 @@ func MakeLSTM(g *ExprGraph, hiddenSize, prevSize int) LSTM {
 	retVal.wih = NewMatrix(g, Float, WithShape(hiddenSize, hiddenSize), WithInit(GlorotN(1.0)), WithName("wih_"))
 	retVal.bias_i = NewVector(g, Float, WithShape(hiddenSize), WithName("bias_i_"), WithInit(Zeroes()))
 
-	// output gate weights
-
+	// forget gate weights
 	retVal.wox = NewMatrix(g, Float, WithShape(hiddenSize, prevSize), WithInit(GlorotN(1.0)), WithName("wfx_"))
 	retVal.woh = NewMatrix(g, Float, WithShape(hiddenSize, hiddenSize), WithInit(GlorotN(1.0)), WithName("wfh_"))
 	retVal.bias_o = NewVector(g, Float, WithShape(hiddenSize), WithName("bias_f_"), WithInit(Zeroes()))
 
-	// forget gate weights
+	// output gate weights
 
 	retVal.wfx = NewMatrix(g, Float, WithShape(hiddenSize, prevSize), WithInit(GlorotN(1.0)), WithName("wox_"))
 	retVal.wfh = NewMatrix(g, Float, WithShape(hiddenSize, hiddenSize), WithInit(GlorotN(1.0)), WithName("woh_"))
@@ -60,10 +59,33 @@ func (l *LSTM) learnables() Nodes {
 }
 
 //Activate is used to define the operations our units perform when processing input data
+//LSTM的机制 inputVector 输入节点 ---prev 上次lstm的输出，包含 hidden和cell
+//h0 h1 inputGate 第一层运算 1
+//					h0 = LSTM.wix输入层x	*	inputVector	;
+//					h1 = LSTM.wih输入层h	*	prevHidden ;
+//					inputGate = Sigmoid(h0+h1+LSTM.bias_i)
+//h2 h3 forgetGate 第一层运算 2
+//					h2 = LSTM.wfx遗忘层x	*	inputVector	;
+//					h3 = LSTM.wfh遗忘层h	*	prevHidden ;
+//					forgetGate = Sigmoid(h2+h3+LSTM.bias_f)
+//h4 h5 outputGate 第一层运算 3
+//					h2 = LSTM.wox输出层x	*	inputVector	;
+//					h3 = LSTM.woh输出层h	*	prevHidden ;
+//					outputGate = Sigmoid(h4+h5+LSTM.bias_o)
+//h6 h7 cellWrite 第一层运算 4
+//					h6 = LSTM.wcx写入层x	*	inputVector	;
+//					h7 = LSTM.wch写入层h	*	prevHidden ;
+//					cellWrite = Tanh(h4+h5+LSTM.bias_c)
+//retain, write 第二层运算 1
+//retain = HadamardProd(forgetGate,prev.cell) //遗忘层输出与上一层的cell做哈达玛运算(相同位置相乘)
+//write = HadamardProd(inputGate, cellWrite) //输入层输出与这层的cellWrite做哈达玛运算(相同位置相乘)
+// 本层的cell = retain+write //加法
+//本层的hidden = HadamardProd(outputGate, Tanh(cell))// 相同位置乘
 func (l *LSTM) Activate(inputVector *Node, prev lstmout) (out lstmout, err error) {
 	// log.Printf("prev %v", prev.hidden.Shape())
 	prevHidden := prev.hidden
 	prevCell := prev.cell
+
 	var h0, h1, inputGate *Node
 	h0 = Must(Mul(l.wix, inputVector))
 	h1 = Must(Mul(l.wih, prevHidden))

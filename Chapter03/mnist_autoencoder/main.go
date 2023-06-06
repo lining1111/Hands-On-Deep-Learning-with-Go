@@ -191,6 +191,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	//用平均值作为损失函数
 	cost := gorgonia.Must(gorgonia.Mean(losses))
 	// cost = gorgonia.Must(gorgonia.Neg(cost))
 
@@ -247,7 +248,7 @@ func main() {
 			if err = xVal.(*tensor.Dense).Reshape(bs, 784); err != nil {
 				log.Fatal("Unable to reshape %v", err)
 			}
-
+			//由于输入和输出的向量规模一致，所以将输入分别赋予x，y
 			gorgonia.Let(x, xVal)
 			gorgonia.Let(y, xVal)
 			if err = vm.RunAll(); err != nil {
@@ -257,10 +258,11 @@ func main() {
 			arrayOutput := m.predVal.Data().([]float64)
 			yOutput := tensor.New(tensor.WithShape(bs, 784), tensor.WithBacking(arrayOutput))
 
+			//j在这里无意义,或者说只取了当前批的开头一个集合，b是数据在这批的集合的索引，i是训练的次数
 			for j := 0; j < 1; j++ {
 				rowT, _ := yOutput.Slice(sli{j, j + 1})
 				row := rowT.Data().([]float64)
-
+				//做了噪声处理
 				img := visualizeRow(row)
 
 				f, _ := os.OpenFile(fmt.Sprintf("training/%d-%d-%dtraining.jpg", j, b, i), os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
