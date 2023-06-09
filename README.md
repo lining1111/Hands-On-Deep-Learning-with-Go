@@ -236,7 +236,7 @@ have any feedback or suggestions.
     至于9-10章，是部署相关的，等真正的参与从事相关工作的时候，可以再进行相关的学习和训练。
 
 ## 20230606
-    
+
     今天也是2023年高考开始的日子，每个人都有过美好生活的愿望，而教育提供了一个公平公正的上升渠道，回首往事，只有上学的时候，每个人都像自己，干净单纯。
     同样的，这也是一段纯粹的，为了改变人生而努力的阶段。就像一个孱弱的婴儿，通过家庭、学校，不断的变得强壮，以适应将来复杂的社会环境。
     能心无旁鹜的，安心的学习，也是件美好。加上有老师同学。
@@ -246,4 +246,39 @@ have any feedback or suggestions.
     至少基础理解是没问题了，就是基础神经元，都是一系列的矩阵乘操作(输入和模型当前层的权重)，而在不同的应用模型中。神经元的内部操作有小的不同、
     神经元之间连接关系有大的不同，同时伴随一些外部不同，来理解具体的神经网络。
     到现在的阶段，虽然理解不能完全的对，但书读百遍，其意自现。同样，还有疏途同归的说法，总会进步到对的那天。
+
+## 20230608
+
+    现阶段的准备工作，在简单理解神经元的操作后，
+    1、需要就具体的库如本书中的Gorgonia，来理解数学操作;
+    2、同样还需要找到通俗的具体神经网络的数学表达。
+    3、将两者结合起来，把5-8章的代码注释补全，完成理解。
+    解决方案：
+    1、对照库的官网https://gorgonia.org/来学习
+        开始理解Gorgonia与线性代数一个很重要的开始就是，用Gorgonia的方式来初始化线性代数的基本元素：
+        标量  NewScalar...    单个数
+        向量  NewVector...    一维数组
+        矩阵  NewMatrix...    二维数组
+        张量  NewTensor...    多维数组
+        前面的元素在完成初始化的时候，都带Gorgonia库的基本单元 ExprGraph(无环图) 还有名字，这些会生成Node，
+        在最后，都可以通过 图的ToDot()函数来生成byte数组，如 
+            ioutil.WriteFile("pregrad.dot", []byte(g.ToDot()), 0644)
+        最后通过在shell输入 dot -T pdf xx.dot -o xx.pdf 来生成可读的pdf文件来看图的各部分连接关系
+        通过树形结构来理解Gorgonia的ExprGraph 
+        1、ExprGraph 包含 Node (Node 是通过NewXX来生成线性代数的 标量、向量、矩阵、张量)
+        2、Node 之间的关联通过 他们的集合如struct，的一个自有函数，如fwd(nn)、Activate(lstm、gru)来表示该集合内各个Node的算术关系(即它们在该框架的线性代数运算)
+            属于前向传播。 Node与Node之间的算数关系用Must Add Mul Sigmoid Tanh HadamardProd Tanh SoftMax 之类的算数关系来链接
+        3、在最外层的模型 建立计算输出和已知输出的loss，即损失值 是一个Node
+        4、通过Grad函数将 loss 和 learnables (Node数组,各神经的权重)，联系起来
+        5、通过NewTapeMachine 创建vm 传入 BindDualValues() 这里可以填 learnables 也可以空
+        6、NewXXSolver创建 solver
+        7、NodesToValueGrads(learnables) 创建 model
+        8、通过Let UnsafeLet 来初始化 输入和输出 vm.Reset() vm.RunAll()
+        9、solver.Step(model)
+        10、完成一次训练、从8、9循环每一次训练
+
+        以上10步，是一个基本模型的形成和训练过程。(预测和训练不同的是没有Step这步)
+        理解大框架后，再通过小部分的线性代数关系，来融会贯通的理解库和模型
+
     
+        

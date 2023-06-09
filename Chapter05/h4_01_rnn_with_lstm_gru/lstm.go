@@ -4,6 +4,12 @@ import (
 	. "gorgonia.org/gorgonia"
 )
 
+//LSTM
+//xx_x与本次的输入节点相乘
+//xx_h与上一个lstm的结果的hidden相乘
+//bias_xx：偏置,与上面两个结果相乘后的积相加，得结果XXGate
+//LSTM会有四层大单元(输入、隐藏、输出、cellWrite)，每层会有上面三个基本小单元
+//LSTM会有一个lstmout，用于参与下级的lstm运算，有是通过上面四层的结果XXGate，计算得
 type LSTM struct {
 	//input
 	wix    *Node

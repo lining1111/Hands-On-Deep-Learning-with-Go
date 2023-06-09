@@ -74,6 +74,20 @@ func MakeGRU(name string, g *ExprGraph, inputSize, hiddenSize int, dt tensor.Dty
 	return gru
 }
 
+//Activate
+// x：这次参与运算的 prev:上一次节点的输出
+//uz wz  第一层运算1
+//		uzh = uz	*	prev
+//		wzx = wz	*	x
+//		z = uzh+wzx + bz(偏置)
+//ur wr  第一层运算2
+//		urh = ur	*	prev
+//		wrx = wr	*	x
+//		r = urh+wrx + br(偏置)
+//u 第二层运算1
+//		hiddenFilter = u	*	（哈达玛积(r,prev)）
+//		wx = w	*	x
+//		第三层运算得到返回节点
 func (l *GRU) Activate(x, prev *Node) (retVal *Node, err error) {
 	// update gate
 	uzh := Must(Mul(l.uz, prev))
